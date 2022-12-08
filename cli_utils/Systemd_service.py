@@ -10,7 +10,7 @@ sudo = True
 if geteuid() != 0:
     continue_anyway = Confirm.ask("Do you want to continue anyway?",default="y")
     if continue_anyway==False:
-        exit("You need to have root privileges to run this script.\nPlease try again, this time using 'sudo'. Exiting.")
+        exit("You need to have root privileges to run this script.")
     else:
         sudo = False
 
@@ -34,42 +34,48 @@ class service_create():
         WantedBy=f"WantedBy={WantedBy}"
         return WantedBy
 
-Name = Prompt.ask("What is your service called?",default="Nothing")
-Create_service = service_create()
-Description, After = Create_service.Unit()
-Type, ExecStart = Create_service.Service()
-WantedBy = Create_service.Install()
 
-Formatting = f"""
-[Unit]
-{Description}
-{After}
-[Service]
-{Type}
-{ExecStart}
-[Install]
-{WantedBy}
-"""
+def main():
+    Name = Prompt.ask("What is your service called?",default="Nothing")
+    Create_service = service_create()
+    Description, After = Create_service.Unit() 
+    Type, ExecStart = Create_service.Service()
+    WantedBy = Create_service.Install()
 
-table = Table(title="Final Result")
+    Formatting = f"""
+    [Unit]
+    {Description}
+    {After}
+    [Service]
+    {Type}
+    {ExecStart}
+    [Install]
+    {WantedBy}
+    """
 
-table.add_row(Formatting)
-console = Console()
-console.print(table)
+    table = Table(title="Final Result")
 
-if Confirm.ask("Would You like to continue?", default="y"):
-    if sudo == True:
-        chdir("/etc/systemd/system")
-        service = open(f"{Name}.service","w")
-        service.write(Formatting)
-        service.close()
+    table.add_row(Formatting)
+    console = Console()
+    console.print(table)
+    return Name, Formatting
+
+if __name__ == "__main__":
+
+    Name, Formatting = main()
+    if Confirm.ask("Would You like to continue?", default="y"):
+        if sudo == True:
+            chdir("/etc/systemd/system")
+            service = open(f"{Name}.service","w")
+            service.write(Formatting)
+            service.close()
+        else:
+            service = open(f"{Name}.service","w")
+            service.write(Formatting)
+            service.close()
     else:
-        service = open(f"{Name}.service","w")
-        service.write(Formatting)
-        service.close()
-else:
-    exit()
-if sudo:
-    if Confirm.ask("Would you like to start and enable?",default="n"):
-        subprocess.run(["systemctl","enable",f"{Name}"])
-        subprocess.run(["systemctl", "start", f"{Name}"])
+        exit()
+    if sudo:
+        if Confirm.ask("Would you like to start and enable?",default="n"):
+            subprocess.run(["systemctl","enable",f"{Name}"])
+            subprocess.run(["systemctl", "start", f"{Name}"])
