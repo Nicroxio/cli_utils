@@ -5,12 +5,13 @@ from rich.table import Table
 from rich.console import Console
 from os import chdir
 from os import geteuid
+from pathlib import Path
 
 sudo = True
 if geteuid() != 0:
-    continue_anyway = Confirm.ask("Do you want to continue anyway?",default="y")
+    continue_anyway = Confirm.ask("You need to have root privileges to run this script.\nDo you want to continue anyway?",default="y")
     if continue_anyway==False:
-        exit("You need to have root privileges to run this script.")
+        exit()
     else:
         sudo = False
 
@@ -70,6 +71,7 @@ if __name__ == "__main__":
             service.write(Formatting)
             service.close()
         else:
+            chdir(Path.home())
             service = open(f"{Name}.service","w")
             service.write(Formatting)
             service.close()
