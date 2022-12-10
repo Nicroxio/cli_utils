@@ -1,13 +1,13 @@
 #!/bin/python3
 from subprocess import run
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
 from os import chdir
 from os import geteuid
 from pathlib import Path
 import json 
 
-if geteuid() != 0:
-    exit("You need to have root privileges to run this script.")
+# if geteuid() != 0:
+#     exit("You need to have root privileges to run this script.")
 
 CONFIG_FILE = Path.home() / ".config" 
 
@@ -25,10 +25,15 @@ class Back():
             self.config[i] = self.config[i].strip()
 
     def Initiate(self):
+
         path = Prompt.ask("Where would you like to store your backup?", default="/mnt")
-        run(["restic","init","--repo",path])
-        data = open("Backup.conf","a")
-        data.write(path)
+        exists = Confirm.ask("Would you like to initiate this backup repo?",default="y")
+        if exists:
+            run(["restic","init","--repo",path])
+        else:
+            print("Adding to the Backup.conf file")
+            data = open("Backup.conf","a")
+            data.write(path)
         
     def Backup(self):
         where = Prompt.ask("Where is your backup?",choices=self.config, default=self.config[0])
