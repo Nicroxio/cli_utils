@@ -20,10 +20,14 @@ class service_create():
         pass
     def Unit(self):
         Description = Prompt.ask("[red]What is the Description of the service? [/red]",default="Na")
-        Description = f"Description={Description}"
         After = Prompt.ask("What do you want this to run after?", default="network.Target")
+        StartLimitInt = Prompt.ask("What do you want your StartLimitInterval to be?",default="300")
+        StartLimitBurst = Prompt.ask("How many times do you want to try before the service exits?",default="5")
+        StartLimitInt = f"StartLimitInterval={StartLimitInt}"
+        StartLimitBurst = f"StartLimitBurst={StartLimitBurst}"
         After = f"After={After}"
-        return Description, After
+        Description = f"Description={Description}"
+        return Description, After, StartLimitInt, StartLimitBurst
     def Service(self):
         Type = Prompt.ask("[red]What Type of service?[/red]",choices=["simple","forking","oneshot","notify","dbus","idle"],default="simple")
         Type = f"Type={Type}"
@@ -39,7 +43,7 @@ class service_create():
 def main():
     Name = Prompt.ask("What is your service called?",default="Nothing")
     Create_service = service_create()
-    Description, After = Create_service.Unit() 
+    Description, After, StartLimitInt, StartLimitBurst = Create_service.Unit() 
     Type, ExecStart = Create_service.Service()
     WantedBy = Create_service.Install()
 
@@ -47,6 +51,8 @@ def main():
     [Unit]
     {Description}
     {After}
+    {StartLimitInt}
+    {StartLimitBurst}
     [Service]
     {Type}
     {ExecStart}
