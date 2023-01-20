@@ -1,10 +1,10 @@
 #!/bin/python3
 from subprocess import run
 from rich.prompt import Prompt, Confirm
+from os import path
+from os import mkdir
 from os import chdir
-from os import geteuid
 from pathlib import Path
-import json 
 
 # if geteuid() != 0:
 #     exit("You need to have root privileges to run this script.")
@@ -49,14 +49,19 @@ class Back():
 def main():
     B = Back()
     Selector = Prompt.ask("What would you like to do?",choices=["Initiate","Backup","Restore"],default="Backup")
-    if Selector == "Initiate":
+    if Selector.upper() == "INITIATE":
         B.Initiate()
-    elif Selector == "Backup":
+    elif Selector.upper() == "BACKUP":
         B.Backup()
     else:
         B.Restore()
 
 if __name__ == "__main__":
+    Does_conf_exist = path.isdir(CONFIG_FILE)
+    print(Does_conf_exist)
+    if Does_conf_exist == False:
+        mkdir(CONFIG_FILE)
+
     chdir(CONFIG_FILE)
     while True:
         try:
