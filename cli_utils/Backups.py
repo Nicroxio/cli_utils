@@ -21,6 +21,7 @@ class Back():
         self.config= []
         path = open("Backup.conf","r")
         self.config = path.readlines()
+        print(self.config)
         for i in range(len(self.config)):
             self.config[i] = self.config[i].strip()
 
@@ -30,6 +31,9 @@ class Back():
         exists = Confirm.ask("Would you like to initiate this backup repo?",default="y")
         if exists:
             run(["restic","init","--repo",path])
+            print("Adding to the Backup.conf file")
+            data = open("Backup.conf","a")
+            data.write(path)
         else:
             print("Adding to the Backup.conf file")
             data = open("Backup.conf","a")
