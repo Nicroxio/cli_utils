@@ -21,7 +21,7 @@ class Back():
         self.config= []
         path = open("Backup.conf","r")
         self.config = path.readlines()
-        print(self.config)
+        #print(self.config)
         for i in range(len(self.config)):
             self.config[i] = self.config[i].strip()
 
@@ -62,7 +62,7 @@ def main():
 
 if __name__ == "__main__":
     Does_conf_exist = path.isdir(CONFIG_FILE)
-    print(Does_conf_exist)
+    #print(Does_conf_exist)
     if Does_conf_exist == False:
         mkdir(CONFIG_FILE)
 
