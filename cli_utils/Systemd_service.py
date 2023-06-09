@@ -9,41 +9,62 @@ from pathlib import Path
 
 sudo = True
 if geteuid() != 0:
-    continue_anyway = Confirm.ask("You need to have root privileges to run this script.\nDo you want to continue anyway?",default="y")
-    if continue_anyway==False:
+    continue_anyway = Confirm.ask(
+        "You need to have root privileges to run this script.\nDo you want to continue anyway?",
+        default="y",
+    )
+    if continue_anyway == False:
         exit()
     else:
         sudo = False
 
-class service_create():
+
+class service_create:
     def __init__(self):
         pass
+
     def Unit(self):
-        Description = Prompt.ask("[red]What is the Description of the service? [/red]",default="Na")
-        After = Prompt.ask("What do you want this to run after?", default="network.Target")
-        StartLimitInt = Prompt.ask("What do you want your StartLimitInterval to be?",default="300")
-        StartLimitBurst = Prompt.ask("How many times do you want to try before the service exits?",default="5")
+        Description = Prompt.ask(
+            "[red]What is the Description of the service? [/red]", default="Na"
+        )
+        After = Prompt.ask(
+            "What do you want this to run after?", default="network.Target"
+        )
+        StartLimitInt = Prompt.ask(
+            "What do you want your StartLimitInterval to be?", default="300"
+        )
+        StartLimitBurst = Prompt.ask(
+            "How many times do you want to try before the service exits?", default="5"
+        )
         StartLimitInt = f"StartLimitInterval={StartLimitInt}"
         StartLimitBurst = f"StartLimitBurst={StartLimitBurst}"
         After = f"After={After}"
         Description = f"Description={Description}"
         return Description, After, StartLimitInt, StartLimitBurst
+
     def Service(self):
-        Type = Prompt.ask("[red]What Type of service?[/red]",choices=["simple","forking","oneshot","notify","dbus","idle"],default="simple")
+        Type = Prompt.ask(
+            "[red]What Type of service?[/red]",
+            choices=["simple", "forking", "oneshot", "notify", "dbus", "idle"],
+            default="simple",
+        )
         Type = f"Type={Type}"
-        ExecStart = Prompt.ask("[blue]What would you like to run?[/blue]",default="/bin/bash")
+        ExecStart = Prompt.ask(
+            "[blue]What would you like to run?[/blue]", default="/bin/bash"
+        )
         ExecStart = f"ExecStart={ExecStart}"
         return Type, ExecStart
+
     def Install(self):
-        WantedBy=Prompt.ask("Wanted by?", default="multi-user.target")
-        WantedBy=f"WantedBy={WantedBy}"
+        WantedBy = Prompt.ask("Wanted by?", default="multi-user.target")
+        WantedBy = f"WantedBy={WantedBy}"
         return WantedBy
 
 
 def main():
-    Name = Prompt.ask("What is your service called?",default="Nothing")
+    Name = Prompt.ask("What is your service called?", default="Nothing")
     Create_service = service_create()
-    Description, After, StartLimitInt, StartLimitBurst = Create_service.Unit() 
+    Description, After, StartLimitInt, StartLimitBurst = Create_service.Unit()
     Type, ExecStart = Create_service.Service()
     WantedBy = Create_service.Install()
 
@@ -67,23 +88,23 @@ def main():
     console.print(table)
     return Name, Formatting
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     Name, Formatting = main()
     if Confirm.ask("Would You like to continue?", default="y"):
         if sudo == True:
             chdir("/etc/systemd/system")
-            service = open(f"{Name}.service","w")
+            service = open(f"{Name}.service", "w")
             service.write(Formatting)
             service.close()
         else:
             chdir(Path.home())
-            service = open(f"{Name}.service","w")
+            service = open(f"{Name}.service", "w")
             service.write(Formatting)
             service.close()
     else:
         exit()
     if sudo:
-        if Confirm.ask("Would you like to start and enable?",default="n"):
-            subprocess.run(["systemctl","enable",f"{Name}"])
+        if Confirm.ask("Would you like to start and enable?", default="n"):
+            subprocess.run(["systemctl", "enable", f"{Name}"])
             subprocess.run(["systemctl", "start", f"{Name}"])
